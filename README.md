@@ -12,3 +12,7 @@ Calculating different types of loss functions.
 
 Understanding and working with a hypothesis and the MSE loss function. Implementing the gradient descent algorithm.
 Minimizing the loss function using gradient descent and chosing the appropriate learning rate.
+
+## Module 2:
+
+Working with multivariate linear regression and building it from scratch. understanding overfitting and underfitting. Using cross validation to train the model better.
