@@ -16,3 +16,9 @@ Minimizing the loss function using gradient descent and chosing the appropriate 
 ## Module 2:
 
 Working with multivariate linear regression and building it from scratch. understanding overfitting and underfitting. Using cross validation to train the model better.
+
+## Module 3:
+
+implementing logestic regression from scratch. Understanding and working with decesion boundaries. Working with error metrics like accuraccy and precision, etc. Implementing a function to calculate the confusion matrix.
+
+
