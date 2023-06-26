@@ -19,7 +19,6 @@ def predict_(x: np.ndarray, theta: np.ndarray) -> np.ndarray:
     n = np.ones(x.shape)
     x = np.append(n, x, axis=1)
     x = np.matmul(x, theta)
-    print(x)
     return x
 
 
