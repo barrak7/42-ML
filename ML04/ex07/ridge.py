@@ -96,6 +96,7 @@ class MyRidge:
             x = np.concatenate((np.ones((x.shape[0], 1)), x), 1)
             theta = self.theta
             theta[0, :] = 0
+
             m = y.shape[0]
             return (x.T @ (y_hat - y) + self.lambda_ * theta) / m
         except:

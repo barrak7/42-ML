@@ -22,61 +22,66 @@ def add_polynomial_features(x, power):
 def main():
     data = pd.read_csv('train.csv').to_numpy()[:, 1:]
     # training set
-    y = data[:, -1]
+    y = data[:, -1].reshape(-1, 1)
     data = data[:, :-1]
     data = (data - data.min()) / (data.max() - data.min())
 
     # cross validation set
     x_c = pd.read_csv('CV.csv').to_numpy()[:, 1:]
-    y_c = x_c[:30, -1]
-    x_c = x_c[:30, :-1]
+    y_c = x_c[:30, -1].reshape(-1, 1)
+    x_c = x_c[:, :-1]
+    x_c = (x_c - x_c.min()) / (x_c.max() - x_c.min())
+    x_c = x_c[:30, :]
 
     # test set
     x_t = pd.read_csv('test.csv').to_numpy()[:, 1:]
-    y_t = x_t[:30, -1]
-    x_t = x_t[:30, :-1]
+    y_t = x_t[:30, -1].reshape(-1, 1)
+    x_t = x_t[:, :-1]
+    x_t = (x_t - x_t.min()) / (x_t.max() - x_t.min())
+    x_t = x_t[:30, :]
 
+    f = open("models.csv", 'a')
     models: list[list[MR]] = []
-    best_l = 0
+
+    best_model = 0
     bm_i = 0
 
-    f = open("models.csv", 'w')
+    lmbda = np.arange(0, 1, 0.2)
+
+    fig, axe = plt.subplots(2, figsize=(12, 12))
+
     for i in range(1, 5):
         x = add_polynomial_features(data, i)
+        xx = add_polynomial_features(x_c, i)
         models.append([])
-        for e in np.arange(0, 1, 0.2):
+        losses = []
+        for e in lmbda:
             models[-1].append(MR(np.ones((x.shape[1] + 1, 1)),
-                              max_iter=1000, lambda_=e, alpha=0.001))
+                                 max_iter=5000000, lambda_=e, alpha=0.0001))
             models[-1][-1].fit_(x, y)
-            y_hat = models[-1][-1].predict_(add_polynomial_features(x_c, i))
-            loss = models[-1][-1].loss_(y_c, y_hat)
-            if best_l == 0:
-                best_m = models[-1][-1]
-                bm_i = i
-            elif loss < best_l:
-                best_m = models[-1][-1]
-                bm_i = i
+            y_hat = models[-1][-1].predict_(xx)
+            losses.append(models[-1][-1].loss_(y_c, y_hat))
             f.write(str(models[-1][-1].get_params_))
+            if best_model == 0:
+                best_model = models[-1][-1]
+                bm_i = i
+            elif losses[-1] < best_model.loss_(y_c, best_model.predict_(add_polynomial_features(x_c, bm_i))):
+                best_model = models[-1][-1]
+                bm_i = i
+
+        axe[0].plot(lmbda, losses, label=f"Module - {i}")
 
     f.close()
     print(
-        f"The best module out of 20 is : theta = {best_m.theta}; alpha = {best_m.alpha}; lambda_ : {best_m.lambda_} with a loss of {best_m.loss_(y_t, best_m.predict_(add_polynomial_features(x_t, bm_i)))}")
-    fig, axe = plt.subplots(2, figsize=(12, 12))
-    lmbda = np.arange(0, 1, 0.2)
+        f"The best module out of 20 is : theta = {best_model.theta}; alpha = {best_model.alpha}; lambda_ : {best_model.lambda_} with a loss of {best_model.loss_(y_t, best_model.predict_(add_polynomial_features(x_t, bm_i)))}")
 
-    for i, model in enumerate(models, 1):
-        losses = []
-        for ml in model:
-            losses.append(ml.loss_(y, ml.predict_(
-                add_polynomial_features(x_t, i))))
-        axe[0].plot(lmbda, losses, label=f"Module - {i}")
     axe[0].set_title("Learning Curves")
     axe[0].set_xlabel('Lambda')
     axe[0].set_ylabel('Loss')
 
-    axe[1].plot(x_t[:, 0], y_t, label='Price')
-    axe[1].plot(x_t[:, 0], best_m.predict_(
-        add_polynomial_features(x_t, bm_i)), label='Predicted Price')
+    axe[1].plot(x_t[:, 0], y_t, "o", label='Price')
+    axe[1].plot(x_t[:, 0], best_model.predict_(
+        add_polynomial_features(x_t, bm_i)), "o", label='Predicted Price')
     axe[1].set_title("Prediction of the best module")
     axe[1].set_xlabel("Avocado weight")
     axe[1].set_ylabel("Space avocado price")

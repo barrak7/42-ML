@@ -22,3 +22,6 @@ Working with multivariate linear regression and building it from scratch. unders
 implementing logestic regression from scratch. Understanding and working with decesion boundaries. Working with error metrics like accuraccy and precision, etc. Implementing a function to calculate the confusion matrix.
 
 
+## Module 4:
+
+Diving even deeper in optimization by implementing polymonial models and penalizing them usin regularization.
